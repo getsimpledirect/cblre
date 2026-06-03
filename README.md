@@ -137,6 +137,8 @@ See [docs/data_access.md](docs/data_access.md) for the full access and official 
 
 CBLRE is a vendor-neutral instrument designed to evaluate any instruction-following LLM regardless of provider or architecture. SimpleDirect® publishes the [flash-1-mini](https://huggingface.co/simpledirect/flash-1-mini) model; CBLRE is not designed to favour it or any other specific model. The scoring harness applies identical prompts and decoding conditions to every evaluated model.
 
+The canonical LLM judge (Claude Sonnet 4.6) shares no lineage with flash-1-mini, which is a Qwen fine-tune — so the benchmark author's own model receives no self-preference advantage from the judge. When Claude-family models are evaluated as competitors, a judge ensemble including a non-Claude judge is required to control for self-preference bias (see [docs/methodology.md](docs/methodology.md) §5.2).
+
 ---
 
 ## Limitations & current status
