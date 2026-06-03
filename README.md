@@ -130,6 +130,30 @@ CBLRE is a vendor-neutral instrument designed to evaluate any instruction-follow
 
 ---
 
+## Limitations & current status
+
+CBLRE is at an early development stage. We state its current limitations plainly so that no result is over-interpreted:
+
+- **Sample size.** The current validation set is ~129 items across 10 tracks (~13 per track). Per-track confidence intervals are correspondingly wide, and most per-track differences between models will not be statistically distinguishable at this size. Track-level numbers should be read as directional, not definitive.
+- **Validity evidence is in progress.** SME (subject-matter expert) validation is ongoing. Inter-annotator agreement (Cohen's / weighted κ) and judge-vs-human calibration are planned but not yet published. No baseline model leaderboard is published; the instrument's discrimination has not yet been demonstrated empirically.
+- **Two scorers are not yet release-grade.** `language_adherence` uses a lightweight heuristic (fastText `lid.176` is the intended replacement), and `citation_validity` cannot confirm hallucinated citations without an external verifier (e.g. a CanLII lookup) wired in; without one it flags citation-shaped text for review rather than confirming.
+- **Contamination defense.** Items carry canary strings for leak detection, but corpus-overlap analysis (n-gram / embedding) against training data is not yet part of the protocol.
+- **Single-entity authorship.** CBLRE is built by the entity that also ships a model. We mitigate this with vendor-neutral conditions, a third-party judge model, gated items, and by not publishing self-run leaderboards — but independent governance is the stronger long-term fix, and external SME authorship is a goal.
+
+### Roadmap
+
+Active development is focused on:
+
+- **Expanding the item bank** — substantially increasing the number of expert-reviewed items per track to narrow confidence intervals and support stable per-track comparisons.
+- **Broadening domain coverage** — adding further Canadian legal and regulatory domains beyond the current 10 tracks.
+- Publishing SME inter-annotator agreement (κ) and judge-vs-human calibration figures.
+- Upgrading `language_adherence` to a published language-ID model and integrating a citation verifier.
+- Independent, third-party-run baselines before any comparative claim is published.
+
+Until these are in place, CBLRE should be described as a development-stage instrument, not a finalized standard.
+
+---
+
 ## License
 
 **Code** (this repository): Apache License 2.0. See [LICENSE](LICENSE).
