@@ -74,15 +74,23 @@ python -m harness.run_eval \
   --out-dir ./results
 ```
 
-**With a Vertex AI Claude judge (recommended):**
+**With the canonical judge (Claude Sonnet 4.6 — recommended):**
 
 ```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+
 python -m harness.run_eval \
   --items your_items.jsonl \
   --model '{"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}' \
-  --judge '{"kind":"vertex_anthropic","model_name":"claude-sonnet-4-6@YYYYMMDD","region":"us-east5","project":"your-gcp-project"}' \
+  --judge '{"kind":"anthropic","model_name":"claude-sonnet-4-6","api_key_env":"ANTHROPIC_API_KEY"}' \
   --run-id your-model-v1 \
   --out-dir ./results
+```
+
+Teams already on GCP can reach the same judge model through Vertex AI instead — scores remain comparable because the model is identical:
+
+```bash
+  --judge '{"kind":"vertex_anthropic","model_name":"claude-sonnet-4-6","region":"us-east5","project":"your-gcp-project"}'
 ```
 
 **Supported `--model` / `--judge` client kinds:**
@@ -91,7 +99,8 @@ python -m harness.run_eval \
 |---|---|
 | `openai_compat` | Any `/v1/chat/completions` server (vLLM, Together, OpenAI, Groq, etc.) |
 | `hf_local` | Local HuggingFace checkpoint (requires `torch`, `transformers`) |
-| `vertex_anthropic` | Claude on Google Vertex AI — recommended judge |
+| `anthropic` | Claude via native Anthropic API — canonical judge; set `ANTHROPIC_API_KEY` |
+| `vertex_anthropic` | Same Claude models via Google Vertex AI — for teams on GCP (ADC auth) |
 
 Run `python -m harness.run_eval --help` for all CLI options.
 

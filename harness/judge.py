@@ -145,6 +145,10 @@ def judge_item(item: dict, answer: str, judge_clients: list) -> dict:
         out = jc.generate(prompt, max_tokens=300, temperature=0.0)
         parsed = _parse_judge_json(out.text)
         if parsed:
+            # Record the judge identity per vote — prefer the model ID the API
+            # resolved and returned over the requested one, so results pin the
+            # exact judge version (methodology §5.2, fixed-judge-version rule).
+            parsed["judge_model"] = out.raw.get("model") or out.model_id
             votes.append(parsed)
     if not votes:
         return {"score01": None, "votes": [], "agreement": "no_valid_votes"}

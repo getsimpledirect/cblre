@@ -13,7 +13,7 @@ Usage:
     --items your_items.jsonl \
     --model '{"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}' \
     --run-id your-model-v1 \
-    --judge '{"kind":"openai_compat","model_name":"gpt-4o","base_url":"https://api.openai.com/v1","api_key_env":"OPENAI_API_KEY"}' \
+    --judge '{"kind":"anthropic","model_name":"claude-sonnet-4-6","api_key_env":"ANTHROPIC_API_KEY"}' \
     --out-dir ./results
 
 Notes:
@@ -21,6 +21,8 @@ Notes:
   * Greedy decoding (temperature 0) by default — the fairness protocol default.
   * The judge spec is optional; without it, rubric items are left unscored and
     flagged, and only programmatic tracks produce final numbers.
+  * The canonical judge for comparable scores is claude-sonnet-4-6 (see
+    docs/methodology.md §5.2); any judge may be used for self-evaluation.
   * Pass --judge twice (or a JSON list) to use a judge ENSEMBLE.
 """
 

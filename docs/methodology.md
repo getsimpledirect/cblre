@@ -89,8 +89,9 @@ Open-ended legal reasoning items (method `rubric`) and some programmatic tracks 
 
 ### §5.2 Judge design rules
 
+- **Canonical judge**: the official primary judge is **Claude Sonnet 4.6** (`claude-sonnet-4-6`), accessed through the native Anthropic API (client kind `anthropic`, requires only `ANTHROPIC_API_KEY`) or equivalently through Google Vertex AI (client kind `vertex_anthropic`, same dateless ID) — the model is identical on both paths, so scores are comparable regardless of access route. `claude-sonnet-4-6` is a pinned snapshot, not an evergreen alias: from the Claude 4.6 generation onward, dateless model IDs are fixed releases, satisfying the fixed-judge-version rule below. Official scoring is anchored on this judge; self-evaluation during development may use any judge, but only canonical-judge scores are admissible for leaderboard comparison. The judge spec is recorded in `summary.json` (`judge_specs`), and the API-resolved judge model ID is recorded per vote (`judge_model`) in each item's judge result.
 - **Blind grading**: the judge prompt never identifies which model produced the answer
-- **Ensemble**: ≥2 judge clients of different lineage; mean score is reported and spread > 1 point is flagged `divergent_flag_for_human` for manual review
+- **Ensemble**: ≥2 judge clients of different lineage, anchored on the canonical judge; mean score is reported and spread > 1 point is flagged `divergent_flag_for_human` for manual review. For official scoring the full ensemble composition (every member's model + version) is fixed and recorded, exactly as for the primary judge.
 - **Anchored 0–4 scale**: explicit per-level descriptions in `judge.SCALE_ANCHORS`; rescaled to [0, 1] for aggregation
 - **Fabrication cap**: a fabricated or misattributed citation flagged by any judge caps the item at 0 regardless of other quality
 - **Fixed judge version**: the judge model + version must be recorded and held constant across a leaderboard refresh; changing the judge invalidates comparisons

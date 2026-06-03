@@ -11,9 +11,10 @@ Client kinds (use as --model / --judge JSON specs):
   openai_compat     : any server speaking /v1/chat/completions
                       (your-model serve_openai.py, vLLM, OpenAI GPT-4o, Together,
                       Groq, Fireworks, OpenRouter, ...)
-  vertex_anthropic  : Claude on Google Vertex AI (Sonnet / Haiku) — RECOMMENDED JUDGE
-  anthropic         : native Anthropic API (stub)
-  cohere            : Cohere Command (stub)
+  anthropic         : Claude via the native Anthropic API — CANONICAL JUDGE
+                      (claude-sonnet-4-6; needs only ANTHROPIC_API_KEY)
+  vertex_anthropic  : the same Claude models via Google Vertex AI, for teams
+                      already on GCP — same model, so judge scores stay comparable
 
 A "completion" is the assistant's text. Tool-call items additionally expose the
 raw text so the track-9 scorer can parse whatever format the model emitted.
@@ -67,6 +68,18 @@ class ModelClient:
             ctx = "\n\n".join(str(c) for c in context) if isinstance(context, list) else str(context)
             sys_parts.append(f"Context:\n{ctx}")
         return ("\n\n".join(sys_parts) if sys_parts else None), prompt
+
+    @staticmethod
+    def _openai_tools_to_anthropic(tools):
+        out = []
+        for t in tools or []:
+            fn = t.get("function", t)
+            out.append({
+                "name": fn["name"],
+                "description": fn.get("description", ""),
+                "input_schema": fn.get("parameters", {"type": "object", "properties": {}}),
+            })
+        return out
 
 
 class HFLocalClient(ModelClient):
@@ -192,28 +205,51 @@ class OpenAICompatClient(ModelClient):
 
 
 class AnthropicClient(ModelClient):
-    """Stub for the native Anthropic API (api.anthropic.com). Use
-    VertexAnthropicClient on this project instead."""
+    """Native Anthropic API (api.anthropic.com). Works with any model available
+    via api.anthropic.com. Auth via ANTHROPIC_API_KEY or explicit api_key."""
 
     def __init__(self, model_name: str, api_key: Optional[str] = None):
+        import anthropic
         self.model_id = model_name
-        raise NotImplementedError("Use kind 'vertex_anthropic' on this project.")
+        self.client = anthropic.Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
 
-
-class CohereClient(ModelClient):
-    """Stub for Command A+ etc. Cohere's chat + tool schema differ; document the
-    format mapping in model_adapters/cohere.md (format only, never content)."""
-
-    def __init__(self, model_name: str, api_key: Optional[str] = None):
-        self.model_id = model_name
-        self.api_key = api_key or os.environ.get("COHERE_API_KEY", "")
-        raise NotImplementedError("Fill in with the cohere SDK; document tool mapping.")
+    def generate(self, prompt, system=None, context=None, tools=None,
+                 max_tokens=512, temperature=0.0) -> GenResult:
+        sys_str, user_str = self._build_system_and_user(prompt, system, context)
+        kwargs = dict(
+            model=self.model_id,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            messages=[{"role": "user", "content": user_str}],
+        )
+        if sys_str:
+            kwargs["system"] = sys_str
+        if tools:
+            kwargs["tools"] = self._openai_tools_to_anthropic(tools)
+        t0 = time.time()
+        msg = self.client.messages.create(**kwargs)
+        text_parts = []
+        for block in msg.content:
+            if getattr(block, "type", None) == "text":
+                text_parts.append(block.text)
+            elif getattr(block, "type", None) == "tool_use":
+                text_parts.append(
+                    "<tool_call>"
+                    + json.dumps({"name": block.name, "arguments": block.input})
+                    + "</tool_call>"
+                )
+        return GenResult(text="\n".join(text_parts).strip(),
+                         raw={"id": getattr(msg, "id", ""),
+                              "model": getattr(msg, "model", "")},
+                         model_id=self.model_id, latency_s=time.time() - t0)
 
 
 class VertexAnthropicClient(ModelClient):
     """
-    Claude via Google Vertex AI (anthropic[vertex]). This is the JUDGE client for
-    your setup, and it can also benchmark Claude models as competitors.
+    Claude via Google Vertex AI (anthropic[vertex]). Alternative access path to
+    the canonical judge for teams already on GCP — same model as the native
+    Anthropic API, so judge scores remain comparable. Can also benchmark Claude
+    models as competitors.
 
     Auth: Application Default Credentials. On a GCP VM this is the attached
     service account (needs roles/aiplatform.user); off-VM, `gcloud auth
@@ -228,18 +264,6 @@ class VertexAnthropicClient(ModelClient):
         self.project = project
         self.region = region
         self.client = AnthropicVertex(project_id=project, region=region)
-
-    @staticmethod
-    def _openai_tools_to_anthropic(tools):
-        out = []
-        for t in tools or []:
-            fn = t.get("function", t)
-            out.append({
-                "name": fn["name"],
-                "description": fn.get("description", ""),
-                "input_schema": fn.get("parameters", {"type": "object", "properties": {}}),
-            })
-        return out
 
     def generate(self, prompt, system=None, context=None, tools=None,
                  max_tokens=512, temperature=0.0) -> GenResult:
@@ -275,7 +299,8 @@ class VertexAnthropicClient(ModelClient):
                     + "</tool_call>"
                 )
         return GenResult(text="\n".join(text_parts).strip(),
-                         raw={"id": getattr(msg, "id", "")},
+                         raw={"id": getattr(msg, "id", ""),
+                              "model": getattr(msg, "model", "")},
                          model_id=self.model_id, latency_s=_t.time() - t0)
 
 
@@ -289,8 +314,13 @@ def build_client(spec: dict) -> ModelClient:
       OpenAI-compatible endpoint (local vLLM server):
         {"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}
 
-      Vertex Claude judge (Sonnet — recommended):
-        {"kind":"vertex_anthropic","model_name":"claude-sonnet-4-6@YYYYMMDD","region":"us-east5","project":"your-gcp-project"}
+      canonical judge (Claude Sonnet 4.6 via the native Anthropic API):
+        {"kind":"anthropic","model_name":"claude-sonnet-4-6","api_key_env":"ANTHROPIC_API_KEY"}
+
+      the same judge via Vertex AI (for teams on GCP; auth via ADC, no API key).
+      From the Claude 4.6 generation onward the Vertex model ID is dateless;
+      older models use the dated form (e.g. claude-haiku-4-5@20251001):
+        {"kind":"vertex_anthropic","model_name":"claude-sonnet-4-6","region":"us-east5","project":"your-gcp-project"}
 
       base model for comparison (HF local):
         {"kind":"hf_local","model_path":"/path/to/base/model"}
@@ -312,7 +342,6 @@ def build_client(spec: dict) -> ModelClient:
         region = spec.get("region", "us-east5")
         return VertexAnthropicClient(spec["model_name"], project, region=region)
     if kind == "anthropic":
-        return AnthropicClient(spec["model_name"])
-    if kind == "cohere":
-        return CohereClient(spec["model_name"])
+        key = os.environ.get(spec["api_key_env"]) if spec.get("api_key_env") else spec.get("api_key")
+        return AnthropicClient(spec["model_name"], api_key=key)
     raise ValueError(f"unknown client kind: {kind}")
