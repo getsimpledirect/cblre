@@ -26,4 +26,4 @@ The items in `data/sample/` are illustrative synthetic content carrying no legal
 
 ## Contact
 
-For data license questions: *[contact placeholder — fill before publishing]*
+For data license questions: open an issue on the [CBLRE repository](https://github.com/getsimpledirect/cblre/issues).

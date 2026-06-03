@@ -127,7 +127,7 @@ Results from seed runs carry the note: *"Items require SME validation before the
 
 The full item bank (~129 expert-reviewed items in the current validation set; SME validation ongoing) is available to qualified evaluators on request. Official scoring against the held-out split is coordinated with SimpleDirect® to prevent contamination.
 
-**To request access:** *[contact form / email placeholder — fill before publishing]*
+**To request access:** open an [Evaluation Set Access Request](https://github.com/getsimpledirect/cblre/issues/new?template=access-request.yml) on this repository's issue tracker.
 
 See [docs/data_access.md](docs/data_access.md) for the full access and official scoring protocol.
 

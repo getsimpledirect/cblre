@@ -20,12 +20,13 @@ Benchmark contamination — models trained on test items before evaluation — i
 
 ## How to request access
 
-*[Contact form or email placeholder — fill before publishing]*
+Open an [Evaluation Set Access Request](https://github.com/getsimpledirect/cblre/issues/new?template=access-request.yml) on this repository's issue tracker. The request form asks for:
 
-When requesting, please include:
-- Organization name and contact information
+- Organization name and your role
 - Intended use (self-evaluation, research, regulatory compliance assessment, other)
 - Agreement to the data use terms (see [DATA_LICENSE.md](../DATA_LICENSE.md))
+
+**Access requests are public.** Do not include private contact details in the issue — once a request is approved, a maintainer responds on the issue to arrange delivery through a private channel.
 
 Requests are reviewed by SimpleDirect® on a rolling basis.
 
@@ -52,4 +53,4 @@ Results from self-evaluation on your own items are not comparable to official CB
 
 ## Timeframe and contact
 
-*[Expected turnaround and contact email/form URL — fill before publishing]*
+Access requests and data license questions are handled through the [repository issue tracker](https://github.com/getsimpledirect/cblre/issues). Requests are reviewed on a rolling basis; the open/closed state of your access-request issue reflects its current status.
