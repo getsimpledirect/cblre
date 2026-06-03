@@ -1,0 +1,29 @@
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# ── Evaluation data — NEVER commit items, gold answers, or result sets ───────
+
+# Block all JSONL anywhere (item banks, run outputs, held-out splits)
+*.jsonl
+!data/sample/sample.jsonl
+
+# Block all JSON except the public item schema and the synthetic sample
+*.json
+!schema/eval_item.schema.json
+!data/sample/*.json
+
+# Block all of data/ except the public synthetic sample directory
+/data/*
+!/data/sample/
+
+# Block run results
+/results/

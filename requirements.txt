@@ -1,0 +1,13 @@
+# Core — required for OpenAI-compatible inference endpoints (OpenAICompatClient)
+requests
+
+# LLM-as-judge via Google Vertex AI — Claude Sonnet recommended
+# See: https://docs.anthropic.com/en/api/claude-on-vertex-ai
+# Auth via Application Default Credentials (gcloud auth application-default login)
+anthropic[vertex]
+
+# ── Optional: local HuggingFace inference only (HFLocalClient) ───────────────
+# Uncomment if you are loading a local transformers checkpoint
+# torch
+# transformers
+# peft
