@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cblre"
+version = "0.1.0"
+description = "Canadian Bilingual Legal & Regulatory Evaluation — scoring harness"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    # OpenAI-compatible inference client (OpenAICompatClient) — requests.post
+    "requests",
+    # LLM judge: AnthropicClient and VertexAnthropicClient both import from anthropic
+    "anthropic",
+]
+
+[project.optional-dependencies]
+# anthropic[vertex] means the anthropic package WITH its vertex extra (not a
+# separate package) — adds google-cloud-aiplatform for GCP ADC auth
+vertex = ["anthropic[vertex]"]
+# Local HuggingFace checkpoint inference (HFLocalClient only)
+local = ["torch>=2.0", "transformers>=4.40", "peft"]
+
+[project.scripts]
+cblre-eval = "harness.run_eval:main"
+
+# NOTE: new subpackages under harness/ must be added to this list;
+# auto-discovery is disabled because this mapping excludes data/ and schema/.
+[tool.setuptools]
+packages = ["harness"]
+
+[tool.setuptools.package-data]
+# Exclude data files from the wheel — they are never part of the installed package.
+harness = []

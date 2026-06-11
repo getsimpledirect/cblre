@@ -1,14 +1,8 @@
-# Core — required for OpenAI-compatible inference endpoints (OpenAICompatClient)
-requests
-
-# LLM-as-judge — the canonical judge is Claude Sonnet 4.6 via the native
-# Anthropic API (AnthropicClient; set ANTHROPIC_API_KEY).
-# Teams on GCP can reach the same judge through Vertex AI instead:
-#   pip install "anthropic[vertex]"   (VertexAnthropicClient, ADC auth)
-anthropic
-
-# ── Optional: local HuggingFace inference only (HFLocalClient) ───────────────
-# Uncomment if you are loading a local transformers checkpoint
-# torch
-# transformers
-# peft
+# Dependencies are defined in pyproject.toml — install with:
+#   pip install git+https://github.com/getsimpledirect/cblre.git          # core
+#   pip install "cblre[vertex] @ git+https://github.com/getsimpledirect/cblre.git"  # + Vertex AI
+#   pip install "cblre[local] @ git+https://github.com/getsimpledirect/cblre.git"   # + HF local
+# or, in a local checkout:
+#   pip install -e .            # core deps
+#   pip install -e ".[vertex]"  # + Vertex AI judge path
+#   pip install -e ".[local]"   # + local HuggingFace checkpoint inference

@@ -49,8 +49,31 @@ The item bank, gold answers, and held-out scoring split are not published here. 
 
 You supply a JSONL file where each line is an item conforming to [`schema/eval_item.schema.json`](schema/eval_item.schema.json). The harness calls your model, scores each item, and writes a per-item JSONL and a `summary.json`.
 
+**Install:**
+
 ```bash
-pip install -r requirements.txt
+# From PyPI-style git source (recommended):
+pip install git+https://github.com/getsimpledirect/cblre.git
+
+# Local development checkout:
+git clone https://github.com/getsimpledirect/cblre.git && cd cblre
+pip install -e .
+```
+
+If you are using the **Vertex AI judge path** (GCP ADC auth), add the `vertex` extra:
+
+```bash
+pip install "cblre[vertex] @ git+https://github.com/getsimpledirect/cblre.git"
+# or, in a local checkout:
+pip install -e ".[vertex]"
+```
+
+If you are using a **local HuggingFace checkpoint** as the model (`kind: hf_local`), add the `local` extra:
+
+```bash
+pip install "cblre[local] @ git+https://github.com/getsimpledirect/cblre.git"
+# or, in a local checkout:
+pip install -e ".[local]"
 ```
 
 **Programmatic tracks only (no judge required):**
@@ -102,7 +125,7 @@ Teams already on GCP can reach the same judge model through Vertex AI instead �
 | `anthropic` | Claude via native Anthropic API — canonical judge; set `ANTHROPIC_API_KEY` |
 | `vertex_anthropic` | Same Claude models via Google Vertex AI — for teams on GCP (ADC auth) |
 
-Run `python -m harness.run_eval --help` for all CLI options.
+Run `cblre-eval --help` (or `python -m harness.run_eval --help`) for all CLI options.
 
 ---
 

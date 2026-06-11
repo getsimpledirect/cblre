@@ -45,9 +45,10 @@ This process ensures that no evaluator handles the held-out items directly. It a
 
 If you want to test the harness before requesting official evaluation, you can:
 
-1. Write items conforming to [`schema/eval_item.schema.json`](../schema/eval_item.schema.json)
-2. Run `python -m harness.run_eval --items your_items.jsonl ...`
-3. Inspect the per-item output and summary
+1. Install the harness: `pip install git+https://github.com/getsimpledirect/cblre.git`
+2. Write items conforming to [`schema/eval_item.schema.json`](../schema/eval_item.schema.json)
+3. Run `cblre-eval --items your_items.jsonl ...` (or `python -m harness.run_eval --items your_items.jsonl ...`)
+4. Inspect the per-item output and summary
 
 Results from self-evaluation on your own items are not comparable to official CBLRE numbers and should not be cited as CBLRE scores.
 
