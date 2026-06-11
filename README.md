@@ -79,7 +79,7 @@ pip install -e ".[local]"
 **Programmatic tracks only (no judge required):**
 
 ```bash
-python -m harness.run_eval \
+cblre-eval \
   --items your_items.jsonl \
   --model '{"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}' \
   --run-id your-model-v1 \
@@ -89,7 +89,7 @@ python -m harness.run_eval \
 **With an LLM judge for rubric/open items:**
 
 ```bash
-python -m harness.run_eval \
+cblre-eval \
   --items your_items.jsonl \
   --model '{"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}' \
   --judge '{"kind":"openai_compat","model_name":"gpt-4o","base_url":"https://api.openai.com/v1","api_key_env":"OPENAI_API_KEY"}' \
@@ -102,7 +102,7 @@ python -m harness.run_eval \
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 
-python -m harness.run_eval \
+cblre-eval \
   --items your_items.jsonl \
   --model '{"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}' \
   --judge '{"kind":"anthropic","model_name":"claude-sonnet-4-6","api_key_env":"ANTHROPIC_API_KEY"}' \
@@ -121,7 +121,7 @@ Teams already on GCP can reach the same judge model through Vertex AI instead �
 | `kind` | When to use |
 |---|---|
 | `openai_compat` | Any `/v1/chat/completions` server (vLLM, Together, OpenAI, Groq, etc.) |
-| `hf_local` | Local HuggingFace checkpoint (requires `torch`, `transformers`) |
+| `hf_local` | Local HuggingFace checkpoint (requires the `[local]` extra) |
 | `anthropic` | Claude via native Anthropic API — canonical judge; set `ANTHROPIC_API_KEY` |
 | `vertex_anthropic` | Same Claude models via Google Vertex AI — for teams on GCP (ADC auth) |
 
