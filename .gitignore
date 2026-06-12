@@ -16,10 +16,12 @@ build/
 *.jsonl
 !data/sample/sample.jsonl
 
-# Block all JSON except the public item schema and the synthetic sample
+# Block all JSON except the public item schema, synthetic sample, and release config
 *.json
 !schema/eval_item.schema.json
 !data/sample/*.json
+!release-please-config.json
+!.release-please-manifest.json
 
 # Block all of data/ except the public synthetic sample directory
 /data/*
