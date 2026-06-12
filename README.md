@@ -129,6 +129,63 @@ Run `cblre-eval --help` (or `python -m harness.run_eval --help`) for all CLI opt
 
 ---
 
+## Reasoning / thinking models
+
+Models that emit chain-of-thought before their final answer fall into two categories. Handle each differently.
+
+### Qwen3 family — toggleable thinking (recommended: disable for eval)
+
+Qwen3 models served via vLLM default to thinking mode on. When active, the model routes its answer through a `reasoning_content` field and leaves `message.content` null — the harness would score an empty answer for every item.
+
+Fix: add `"chat_template_kwargs": {"enable_thinking": false}` to your `--model` spec:
+
+```bash
+cblre-eval \
+  --items your_items.jsonl \
+  --model '{"kind":"openai_compat","model_name":"Qwen/Qwen3.5-9B",
+            "base_url":"http://localhost:8000/v1",
+            "chat_template_kwargs":{"enable_thinking":false}}' \
+  --run-id qwen35-9b \
+  --out-dir ./results
+```
+
+`chat_template_kwargs` is injected at the top level of the raw request body — this is the correct placement for vLLM's API when using direct HTTP requests (not the OpenAI Python SDK's `extra_body`).
+
+### DeepSeek-R1 / QwQ — always-on reasoning (no toggle)
+
+These models always produce a reasoning trace before the final answer; the `enable_thinking` kwarg has no effect. The harness handles them correctly without any spec change:
+
+- `mcq_exact` uses a **final-committed-answer** strategy — it scans for the last commitment pattern in the full response, so chain-of-thought output scores correctly.
+- Rubric-scored items: the judge evaluates `message.content` only; ensure your vLLM `--reasoning-parser` is configured to populate `message.content` with the final answer (not only `reasoning_content`).
+
+```bash
+cblre-eval \
+  --items your_items.jsonl \
+  --model '{"kind":"openai_compat","model_name":"deepseek-ai/DeepSeek-R1",
+            "base_url":"http://localhost:8000/v1"}' \
+  --run-id r1-baseline \
+  --out-dir ./results
+```
+
+### Standard / non-thinking models
+
+Leave `chat_template_kwargs` unset (the default is `null`). Do not set it for hosted APIs (OpenAI, Together, Groq, Fireworks, OpenRouter) — it is a vLLM-specific field and strict endpoints will reject unknown body fields.
+
+### How the harness warns you
+
+If `message.content` is null but a reasoning field is present, the harness prints a warning to stderr for every affected item:
+
+```
+[cblre] WARNING: message.content is null/empty but 'reasoning_content' is present.
+  Qwen3 family: add "chat_template_kwargs": {"enable_thinking": false} to your --model spec.
+  DeepSeek-R1 / QwQ: check that vLLM's --reasoning-parser is routing the final answer into message.content.
+  Scoring this item as empty answer.
+```
+
+If you see this in a run, fix the spec or serving config and re-run — resumable eval means only unscored items are retried.
+
+---
+
 ## Output format
 
 Results are written to `--out-dir/<run-id>/`:

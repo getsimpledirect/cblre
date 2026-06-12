@@ -159,17 +159,47 @@ class HFLocalClient(ModelClient):
 
 
 class OpenAICompatClient(ModelClient):
-    """Any OpenAI-compatible /v1/chat/completions endpoint."""
+    """Any OpenAI-compatible /v1/chat/completions endpoint.
+
+    Reasoning / thinking models
+    ---------------------------
+    Some models have a "thinking mode" that routes the answer through a separate
+    reasoning field and leaves message.content null.  The harness detects this and
+    warns; the fix depends on the model family:
+
+    Qwen3 family (toggleable thinking via vLLM):
+      Add "chat_template_kwargs": {"enable_thinking": false} to the model spec.
+      This is injected at the top level of the raw request body — not under
+      extra_body, which is an OpenAI Python SDK abstraction; we use requests.post
+      directly so the field goes straight in the body (proven by curl against vLLM).
+
+    DeepSeek-R1 / QwQ / always-on reasoning models:
+      thinking cannot be disabled via chat_template_kwargs.  However, the harness
+      is designed for this: mcq_exact uses a final-committed-answer strategy that
+      works correctly on chain-of-thought output.  What matters is that vLLM's
+      --reasoning-parser is configured so the model's answer appears in
+      message.content (not only in reasoning_content).  If content is still null,
+      adjust the vLLM serving config rather than the model spec.
+
+    Non-thinking models (GPT-4o, Llama, Mistral, hosted APIs):
+      Leave chat_template_kwargs unset (default None).  Sending a vLLM-specific
+      field to hosted endpoints risks a 400 from strict servers.
+
+    chat_template_kwargs defaults to None (opt-in, safe for all targets).
+    """
 
     def __init__(self, model_name: str, base_url: str,
-                 api_key: Optional[str] = None, send_tools: bool = True):
+                 api_key: Optional[str] = None, send_tools: bool = True,
+                 chat_template_kwargs: Optional[dict] = None):
         self.model_id = model_name
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
         self.send_tools = send_tools
+        self.chat_template_kwargs = chat_template_kwargs
 
     def generate(self, prompt, system=None, context=None, tools=None,
                  max_tokens=512, temperature=0.0) -> GenResult:
+        import sys
         import requests
         headers = {"Content-Type": "application/json"}
         if self.api_key:
@@ -180,6 +210,10 @@ class OpenAICompatClient(ModelClient):
                     "max_tokens": max_tokens, "temperature": temperature, "stream": False}
             if tools and self.send_tools and send_tools:
                 body["tools"] = tools
+            # chat_template_kwargs at the top level — vLLM raw requests path;
+            # NOT nested under extra_body (that is the OpenAI Python SDK abstraction).
+            if self.chat_template_kwargs is not None:
+                body["chat_template_kwargs"] = self.chat_template_kwargs
             return requests.post(f"{self.base_url}/chat/completions",
                                  headers=headers, json=body, timeout=300)
 
@@ -199,6 +233,26 @@ class OpenAICompatClient(ModelClient):
         data = r.json()
         msg = data["choices"][0]["message"]
         text = msg.get("content") or ""
+
+        # Harden: detect thinking-mode leakage — reasoning-mode models may route their
+        # answer through a reasoning_content / reasoning field and leave content null.
+        # We never read the reasoning text as the answer; scoring empty is correct.
+        # Emit a diagnostic so the run log makes the root cause obvious.
+        if not text:
+            for reasoning_key in ("reasoning_content", "reasoning", "thinking"):
+                if msg.get(reasoning_key):
+                    print(
+                        f"[cblre] WARNING: message.content is null/empty but "
+                        f"'{reasoning_key}' is present.\n"
+                        f"  Qwen3 family: add \"chat_template_kwargs\": "
+                        f"{{\"enable_thinking\": false}} to your --model spec.\n"
+                        f"  DeepSeek-R1 / QwQ: check that vLLM's --reasoning-parser "
+                        f"is routing the final answer into message.content.\n"
+                        f"  Scoring this item as empty answer.",
+                        file=sys.stderr,
+                    )
+                    break
+
         if msg.get("tool_calls"):
             text = (text + "\n" + json.dumps(msg["tool_calls"])).strip()
         return GenResult(text=text, raw=data, model_id=self.model_id, latency_s=time.time() - t0)
@@ -311,8 +365,18 @@ def build_client(spec: dict) -> ModelClient:
       local HF checkpoint:
         {"kind":"hf_local","model_path":"/path/to/your/local/model"}
 
-      OpenAI-compatible endpoint (local vLLM server):
+      OpenAI-compatible endpoint (standard / non-thinking model):
         {"kind":"openai_compat","model_name":"your-model-name","base_url":"http://localhost:8000/v1"}
+
+      Qwen3 family via vLLM (suppress thinking mode for deterministic eval):
+        {"kind":"openai_compat","model_name":"Qwen/Qwen3.5-9B","base_url":"http://localhost:8000/v1",
+         "chat_template_kwargs":{"enable_thinking":false}}
+
+      DeepSeek-R1 / QwQ (always-on reasoning — chat_template_kwargs has no effect):
+        {"kind":"openai_compat","model_name":"deepseek-ai/DeepSeek-R1","base_url":"http://localhost:8000/v1"}
+        # mcq_exact uses final-committed-answer strategy, so chain-of-thought output
+        # scores correctly.  Ensure vLLM --reasoning-parser routes the final answer
+        # into message.content.  Do NOT set chat_template_kwargs for these models.
 
       canonical judge (Claude Sonnet 4.6 via the native Anthropic API):
         {"kind":"anthropic","model_name":"claude-sonnet-4-6","api_key_env":"ANTHROPIC_API_KEY"}
@@ -335,8 +399,13 @@ def build_client(spec: dict) -> ModelClient:
                              adapter=spec.get("adapter"))
     if kind == "openai_compat":
         key = os.environ.get(spec["api_key_env"]) if spec.get("api_key_env") else spec.get("api_key")
+        # chat_template_kwargs is opt-in (default None) — safe for all targets including
+        # hosted APIs that reject unknown body fields.  Mirrors thinking_kw on hf_local.
+        # Qwen3 via vLLM: set {"enable_thinking": false} in the spec explicitly.
+        chat_template_kwargs = spec.get("chat_template_kwargs")
         return OpenAICompatClient(spec["model_name"], spec["base_url"],
-                                  api_key=key, send_tools=spec.get("send_tools", True))
+                                  api_key=key, send_tools=spec.get("send_tools", True),
+                                  chat_template_kwargs=chat_template_kwargs)
     if kind in ("vertex_anthropic", "vertex"):
         project = spec.get("project") or spec.get("project_id")
         region = spec.get("region", "us-east5")
