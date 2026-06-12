@@ -63,6 +63,10 @@ for a rubric-scored item.
 
 ## Releases
 
+> **Note:** `docs`, `chore`, `ci`, `refactor`, `test`, and `perf` commits do not
+> open a release PR on their own. They are bundled into the next release opened
+> by a `feat` or `fix` commit.
+
 Releases are **PR-gated via release-please**. On every push to `main`,
 release-please maintains an open release PR that accumulates all pending
 changes in `CHANGELOG.md`. Merging that PR:
