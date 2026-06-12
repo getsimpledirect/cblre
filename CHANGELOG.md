@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.1...cblre-v0.1.2) (2026-06-12)
+
+
+### Bug Fixes
+
+* **models:** make chat_template_kwargs opt-in; document reasoning mod… ([4a40a3f](https://github.com/getsimpledirect/cblre/commit/4a40a3f9bed87745690bb5c9d0214819425dcd2f))
+* **models:** make chat_template_kwargs opt-in; document reasoning model handling ([06b903e](https://github.com/getsimpledirect/cblre/commit/06b903e3f0dadb9fa216b2aefe60bfb3ec87a49b))
+
 ## [0.1.1](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.0...cblre-v0.1.1) (2026-06-12)
 
 
