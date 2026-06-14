@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.2...cblre-v0.1.3) (2026-06-14)
+
+
+### Bug Fixes
+
+* **scorers:** add statute cite patterns and fix citation_validity judge gate ([4203137](https://github.com/getsimpledirect/cblre/commit/4203137137c9d34d4af9eb8acc44bc17f1ff0a13))
+
 ## [0.1.2](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.1...cblre-v0.1.2) (2026-06-12)
 
 
