@@ -54,4 +54,8 @@ Results from self-evaluation on your own items are not comparable to official CB
 
 ## Timeframe and contact
 
-Access requests and data license questions are handled through the [repository issue tracker](https://github.com/getsimpledirect/cblre/issues). Requests are reviewed on a rolling basis; the open/closed state of your access-request issue reflects its current status.
+Access requests and data license questions are handled through the [repository issue tracker](https://github.com/getsimpledirect/cblre/issues).
+
+**Response time target:** We aim to acknowledge access requests within **5 business days** and to complete review within **15 business days**. The open/closed state of your access-request issue reflects its current status; a maintainer will comment on the issue if additional information is needed or when access is approved.
+
+If you have not received a response within 15 business days, please add a comment to your open issue to prompt a follow-up. For urgent research timelines, note your deadline in the original request.

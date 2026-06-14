@@ -1,6 +1,6 @@
 # CBLRE Scoring Methodology
 
-> **Development stage.** This document describes the harness-level scoring protocol. A fuller methodology covering item construction, SME validation procedure, and inter-rater reliability analysis will be published alongside the first formal data release.
+> **Scoring protocol status: stable.** The harness-level scoring rules described here — scorers, rubrics, aggregation, and judge protocol — are fixed and will not change without a versioned update. What is still in progress is the *extended methodology*: SME inter-annotator agreement (Cohen's κ), judge-vs-human calibration figures, and corpus-overlap contamination analysis. These will be published alongside the first formal data release and do not affect the reproducibility of runs made against the current harness.
 
 ---
 

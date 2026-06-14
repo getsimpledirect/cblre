@@ -12,12 +12,12 @@ type determines what version component gets bumped.
 |------------|----------------------------------------------------|---------------|
 | `feat`     | New scorer, new track, new model client            | minor         |
 | `fix`      | Bug fix in harness logic, scorer, or judge         | patch         |
-| `docs`     | Documentation only                                 | patch         |
-| `chore`    | Tooling, CI, dependencies, release config          | patch         |
-| `refactor` | Code restructure with no behaviour change          | patch         |
-| `test`     | Adding or fixing tests                             | patch         |
-| `ci`       | GitHub Actions workflows only                      | patch         |
-| `perf`     | Performance improvement                            | patch         |
+| `docs`     | Documentation only                                 | none (bundled) |
+| `chore`    | Tooling, CI, dependencies, release config          | none (bundled) |
+| `refactor` | Code restructure with no behaviour change          | none (bundled) |
+| `test`     | Adding or fixing tests                             | none (bundled) |
+| `ci`       | GitHub Actions workflows only                      | none (bundled) |
+| `perf`     | Performance improvement                            | none (bundled) |
 
 ### Format
 
@@ -95,10 +95,28 @@ maintainer approval:
 - `data/` — evaluation items and gold answers (most of this directory is
   gitignored; only the public synthetic sample is committed)
 
-## Running CI locally
+## Running tests locally
+
+```bash
+pip install -e .
+pip install pytest
+python -m pytest -q          # full suite (~200 tests, no GPU, no network)
+python -m pytest tests/test_scorers.py -v   # single file
+```
+
+The test suite runs entirely offline — no model endpoints, no API keys, no GPU required.
+
+## Running CI checks locally
 
 ```
 pip install -e .
 python -c "from harness import scorers, judge, run_eval, models, stats"
 python -m harness.run_eval --help
 ```
+
+## Reporting bugs
+
+Open a [Bug Report](https://github.com/getsimpledirect/cblre/issues/new?template=bug-report.yml) issue.
+Please include your cblre version, Python version, the command you ran, and the full error output.
+
+For security vulnerabilities, use [private vulnerability reporting](https://github.com/getsimpledirect/cblre/security/advisories/new) instead of a public issue.

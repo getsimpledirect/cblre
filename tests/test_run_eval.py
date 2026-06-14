@@ -1,3 +1,5 @@
+# Copyright 2026 Alpine Pacific Trading Inc. (operating as SimpleDirect®)
+# SPDX-License-Identifier: Apache-2.0
 """Tests for harness/run_eval.py.
 
 load_items and load_done use tmp_path fixtures (no network).

@@ -1,3 +1,5 @@
+# Copyright 2026 Alpine Pacific Trading Inc. (operating as SimpleDirect®)
+# SPDX-License-Identifier: Apache-2.0
 """Tests for harness/models.py.
 
 Tests cover pure static helpers and the build_client factory.
@@ -7,8 +9,6 @@ HFLocalClient is skipped when torch is not installed (bare CI).
 """
 from __future__ import annotations
 
-import os
-import json
 import pytest
 from unittest.mock import patch, MagicMock
 from harness.models import ModelClient, OpenAICompatClient, GenResult, build_client
@@ -249,8 +249,8 @@ class TestBuildClient:
             assert isinstance(c, VertexAnthropicClient)
 
     def test_hf_local_skipped_without_torch(self):
-        torch = pytest.importorskip("torch",
-                                    reason="torch not installed — skip hf_local test")
+        pytest.importorskip("torch",
+                            reason="torch not installed — skip hf_local test")
         # If torch is available, just verify build_client maps the kind correctly.
         # We don't instantiate (would need a real checkpoint path).
         from harness.models import HFLocalClient

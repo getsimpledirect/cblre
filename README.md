@@ -1,5 +1,9 @@
 # CBLRE — Canadian Bilingual Legal & Regulatory Evaluation
 
+[![CI](https://github.com/getsimpledirect/cblre/actions/workflows/ci.yml/badge.svg)](https://github.com/getsimpledirect/cblre/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+
 **Status: In active development.** The scoring harness and item schema are published here. The item bank is gated — see [Requesting the evaluation set](#requesting-the-evaluation-set).
 
 CBLRE is a benchmark for evaluating large language models on Canadian legal and regulatory tasks, in both official languages. It is developed and maintained by **Alpine Pacific Trading Inc. (operating as SimpleDirect®)**.
@@ -42,6 +46,12 @@ The item bank, gold answers, and held-out scoring split are not published here. 
 | `tool_call` | Function calling | Partial — judge scores argument quality |
 
 `mcq_exact` implements a **final-committed-answer** strategy: for reasoning models that produce chain-of-thought before committing, it scans for the LAST commitment pattern rather than the first letter. See [docs/methodology.md](docs/methodology.md) for detail.
+
+---
+
+## Quickstart
+
+New here? See [docs/quickstart.md](docs/quickstart.md) for a step-by-step guide — install, run the harness on the synthetic sample items, and read the results in under 5 minutes.
 
 ---
 
@@ -126,6 +136,17 @@ Teams already on GCP can reach the same judge model through Vertex AI instead �
 | `vertex_anthropic` | Same Claude models via Google Vertex AI — for teams on GCP (ADC auth) |
 
 Run `cblre-eval --help` (or `python -m harness.run_eval --help`) for all CLI options.
+
+**Installation troubleshooting:**
+
+| Symptom | Fix |
+|---|---|
+| `pip install` fails on `anthropic` build | Upgrade pip first: `pip install --upgrade pip` |
+| `ModuleNotFoundError: harness` | Install in editable mode from the repo root: `pip install -e .` |
+| `ImportError: google.cloud` when using `vertex` judge | Install the vertex extra: `pip install "cblre[vertex] @ git+..."` |
+| `ImportError: torch` when using `hf_local` | Install the local extra: `pip install "cblre[local] @ git+..."` |
+| `cblre-eval: command not found` | Ensure the Python `bin/` directory is on your `PATH`, or run `python -m harness.run_eval` instead |
+| HTTP 400 from model endpoint when using Qwen3 | Add `"chat_template_kwargs": {"enable_thinking": false}` to your `--model` spec (see [Reasoning / thinking models](#reasoning--thinking-models)) |
 
 ---
 
@@ -242,6 +263,22 @@ Active development is focused on:
 - Independent, third-party-run baselines before any comparative claim is published.
 
 Until these are in place, CBLRE should be described as a development-stage instrument, not a finalized standard.
+
+---
+
+## Contributing
+
+Contributions to the harness, documentation, and tooling are welcome.
+
+| Resource | Purpose |
+|---|---|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Commit conventions, what requires maintainer approval, how to run tests |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Local setup, project structure, coding style, release process |
+| [AUTHORS.md](AUTHORS.md) | Core team and contributor credits |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
+| [SECURITY.md](SECURITY.md) | How to report vulnerabilities privately |
+
+For bugs, use the [Bug Report](https://github.com/getsimpledirect/cblre/issues/new?template=bug-report.yml) template. For features, use the [Feature Request](https://github.com/getsimpledirect/cblre/issues/new?template=feature-request.yml) template. For security vulnerabilities, use [private reporting](https://github.com/getsimpledirect/cblre/security/advisories/new) — do not open a public issue.
 
 ---
 

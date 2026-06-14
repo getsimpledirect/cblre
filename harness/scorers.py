@@ -1,3 +1,5 @@
+# Copyright 2026 Alpine Pacific Trading Inc. (operating as SimpleDirect®)
+# SPDX-License-Identifier: Apache-2.0
 """
 CBLRE programmatic scorers.
 
@@ -12,7 +14,6 @@ judge in judge.py must produce the real score. Programmatic scorers never
 
 from __future__ import annotations
 import re
-from typing import Any
 
 
 # ── Citation patterns (Canadian) ────────────────────────────────────────────
@@ -108,7 +109,7 @@ def mcq_exact(response: str, item: dict) -> dict:
                     last_pos, picked, how = m.start(), m.group(1), "last_commitment"
     # 2) bare letter alone on the FINAL non-empty line
     if not picked:
-        for ln in reversed([l.strip() for l in response.splitlines() if l.strip()]):
+        for ln in reversed([line.strip() for line in response.splitlines() if line.strip()]):
             m = re.fullmatch(r"\(?([A-Ea-e])\)?[\.\)]?", ln)
             if m:
                 picked, how = m.group(1).upper(), "final_line_letter"
@@ -161,7 +162,8 @@ def extract_citations(text: str) -> list[str]:
     for c in cites:
         k = _normalize(c)
         if k not in seen:
-            seen.add(k); out.append(c)
+            seen.add(k)
+            out.append(c)
     return out
 
 

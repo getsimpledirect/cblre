@@ -1,3 +1,5 @@
+# Copyright 2026 Alpine Pacific Trading Inc. (operating as SimpleDirect®)
+# SPDX-License-Identifier: Apache-2.0
 """Tests for harness/scorers.py.
 
 Covers all programmatic scorers:
@@ -10,7 +12,6 @@ Covers all programmatic scorers:
 """
 from __future__ import annotations
 
-import pytest
 from harness.scorers import (
     extract_citations, citation_validity,
     mcq_exact, language_adherence, keyword_coverage, refusal, tool_call,

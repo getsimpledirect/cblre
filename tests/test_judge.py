@@ -1,3 +1,5 @@
+# Copyright 2026 Alpine Pacific Trading Inc. (operating as SimpleDirect®)
+# SPDX-License-Identifier: Apache-2.0
 """Tests for harness/judge.py.
 
 build_judge_prompt and _parse_judge_json are pure functions.
@@ -9,7 +11,7 @@ import json
 import pytest
 from harness.judge import (
     build_judge_prompt, _parse_judge_json, judge_item,
-    RUBRICS, SCALE_ANCHORS,
+    RUBRICS,
 )
 from harness.models import GenResult, ModelClient
 

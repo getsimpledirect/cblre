@@ -9,6 +9,29 @@ description = "Canadian Bilingual Legal & Regulatory Evaluation — scoring harn
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
+authors = [
+  { name = "Alpine Pacific Trading Inc." },
+]
+keywords = [
+  "llm-evaluation",
+  "benchmarking",
+  "canadian-law",
+  "legal-ai",
+  "bilingual",
+  "nlp",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     # OpenAI-compatible inference client (OpenAICompatClient) — requests.post
     "requests",
@@ -22,6 +45,17 @@ dependencies = [
 vertex = ["anthropic[vertex]"]
 # Local HuggingFace checkpoint inference (HFLocalClient only)
 local = ["torch>=2.0", "transformers>=4.40", "peft"]
+
+[project.urls]
+Repository = "https://github.com/getsimpledirect/cblre"
+Issues = "https://github.com/getsimpledirect/cblre/issues"
+Changelog = "https://github.com/getsimpledirect/cblre/blob/main/CHANGELOG.md"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "single"
 
 [project.scripts]
 cblre-eval = "harness.run_eval:main"
