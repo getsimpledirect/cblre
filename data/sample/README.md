@@ -11,6 +11,26 @@ Do not draw any conclusions about benchmark difficulty or model performance from
 
 ---
 
+## Validating items against the schema
+
+Before running the harness on your own items, validate them against the schema:
+
+```bash
+pip install jsonschema
+python -c "
+import json, jsonschema, pathlib
+schema = json.loads(pathlib.Path('schema/eval_item.schema.json').read_text())
+items  = pathlib.Path('your_items.jsonl').read_text().splitlines()
+for i, line in enumerate(items, 1):
+    if line.strip():
+        jsonschema.validate(json.loads(line), schema)
+        print(f'  line {i}: ok')
+print('All items valid.')
+"
+```
+
+The schema is at [`schema/eval_item.schema.json`](../../schema/eval_item.schema.json). A full field-by-field description is in the schema's `"description"` properties and in [`docs/methodology.md`](../../docs/methodology.md).
+
 ## Adding items
 
 Add 2–3 synthetic items per track as `.json` files or as a single `sample.jsonl`. Every item must conform to [`schema/eval_item.schema.json`](../../schema/eval_item.schema.json).

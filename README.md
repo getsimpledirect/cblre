@@ -45,6 +45,12 @@ The item bank, gold answers, and held-out scoring split are not published here. 
 
 ---
 
+## Quickstart
+
+New here? See [docs/quickstart.md](docs/quickstart.md) for a step-by-step guide — install, run the harness on the synthetic sample items, and read the results in under 5 minutes.
+
+---
+
 ## Running the harness on your own items
 
 You supply a JSONL file where each line is an item conforming to [`schema/eval_item.schema.json`](schema/eval_item.schema.json). The harness calls your model, scores each item, and writes a per-item JSONL and a `summary.json`.
@@ -242,6 +248,12 @@ Active development is focused on:
 - Independent, third-party-run baselines before any comparative claim is published.
 
 Until these are in place, CBLRE should be described as a development-stage instrument, not a finalized standard.
+
+---
+
+## Contributing
+
+Contributions to the harness, documentation, and tooling are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for commit conventions, what requires maintainer approval, and how to run the test suite locally. For bugs, use the [Bug Report](https://github.com/getsimpledirect/cblre/issues/new?template=bug-report.yml) template. For security vulnerabilities, use [private reporting](https://github.com/getsimpledirect/cblre/security/advisories/new).
 
 ---
 
