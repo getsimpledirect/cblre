@@ -25,6 +25,18 @@ NEUTRAL_CITE = re.compile(r"\b\d{4}\s+[A-Z]{2,5}\s+\d{1,5}\b")
 REPORTED_CITE = re.compile(
     r"[\[\(]?\d{4}[\]\)]?,?\s+\d+\s+[A-Z](?:\.?\s?[A-Z]\.?)*\.?\s+\d{1,5}")
 CCQ_CITE = re.compile(r"\b(?:art\.?\s*)?\d{1,4}\s*(?:C\.?c\.?Q\.?|CCQ)\b", re.IGNORECASE)
+# Statute chapter cites: RSC 1985, c C-46 | SC 2000, c 17 | RSO 1990, c P.33 | SBC 2003, c 5
+STATUTE_CITE = re.compile(
+    r"\b(?:RSC|SC|RSO|SO|SBC|RSBC|RSA|SA|RSS|SS|RSM|SM|SNB|RSNB|RSNS|SNS|RSPEI|SNFLD|RSNL|SNL|RSQ|SQ)"
+    r"\s+\d{4},\s*c\.?\s+[A-Z0-9][\w.\-]*\b"
+)
+# Quebec Consolidated Laws and Regulations: CQLR c CCQ-1991 | CQLR c P-40.1
+CQLR_CITE = re.compile(r"\bCQLR\s+c\.?\s+[A-Z][\w.\-]*\b")
+# Prose CCQ article: "Article 1457 of the Civil Code of Québec"
+PROSE_CCQ = re.compile(
+    r"\bArticle\s+\d{1,4}\s+of\s+(?:the\s+)?Civil Code(?:\s+of\s+Qu[eé]bec)?\b",
+    re.IGNORECASE
+)
 
 
 def _normalize(s: str) -> str:
@@ -142,7 +154,7 @@ def language_adherence(response: str, item: dict) -> dict:
 # ── Citation validity / hallucination ───────────────────────────────────────
 def extract_citations(text: str) -> list[str]:
     cites = []
-    for pat in (REPORTED_CITE, NEUTRAL_CITE, CCQ_CITE):
+    for pat in (REPORTED_CITE, NEUTRAL_CITE, CCQ_CITE, STATUTE_CITE, CQLR_CITE, PROSE_CCQ):
         cites += [m.group(0) for m in pat.finditer(text)]
     # de-dup preserving order
     seen, out = set(), []
@@ -184,9 +196,11 @@ def citation_validity(response: str, item: dict, verifier=None) -> dict:
 
     has_confirmed_halluc = hallucinated > 0
     score = 0.0 if has_confirmed_halluc else (1.0 if matched_gold > 0 else 0.0)
-    # Only escalate to the judge if we found citation-shaped text but nothing gold
-    # and nothing confirmed-fake (the ambiguous case).
-    needs_judge = (not has_confirmed_halluc) and matched_gold == 0 and len(found) > 0
+    # Escalate to the judge when gold citations exist but none were matched and
+    # nothing was confirmed-fake. This covers vague prose responses where the regex
+    # finds nothing — the judge can read prose citations the patterns can't.
+    # Confirmed hallucinations stay at score=0 without judge (working correctly).
+    needs_judge = (not has_confirmed_halluc) and matched_gold == 0 and len(golds) > 0
     return {"score": score,
             "detail": {"found": classified, "hallucinated": hallucinated,
                        "matched_gold": matched_gold},
