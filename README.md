@@ -133,6 +133,17 @@ Teams already on GCP can reach the same judge model through Vertex AI instead â€
 
 Run `cblre-eval --help` (or `python -m harness.run_eval --help`) for all CLI options.
 
+**Installation troubleshooting:**
+
+| Symptom | Fix |
+|---|---|
+| `pip install` fails on `anthropic` build | Upgrade pip first: `pip install --upgrade pip` |
+| `ModuleNotFoundError: harness` | Install in editable mode from the repo root: `pip install -e .` |
+| `ImportError: google.cloud` when using `vertex` judge | Install the vertex extra: `pip install "cblre[vertex] @ git+..."` |
+| `ImportError: torch` when using `hf_local` | Install the local extra: `pip install "cblre[local] @ git+..."` |
+| `cblre-eval: command not found` | Ensure the Python `bin/` directory is on your `PATH`, or run `python -m harness.run_eval` instead |
+| HTTP 400 from model endpoint when using Qwen3 | Add `"chat_template_kwargs": {"enable_thinking": false}` to your `--model` spec (see [Reasoning / thinking models](#reasoning--thinking-models)) |
+
 ---
 
 ## Reasoning / thinking models
