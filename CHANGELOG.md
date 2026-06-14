@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.4](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.3...cblre-v0.1.4) (2026-06-14)
+
+
+### Bug Fixes
+
+* **repo:** address all code review findings from open-source readiness PR ([635302d](https://github.com/getsimpledirect/cblre/commit/635302d03d484b8f2a7f47ddadfae9bde563bc48))
+
+
+### Documentation
+
+* **readme:** add badges, expand Contributing section, surface governance files ([7f2e32e](https://github.com/getsimpledirect/cblre/commit/7f2e32e16c9c02b7820599b4683f95e321a63748))
+
 ## [0.1.3](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.2...cblre-v0.1.3) (2026-06-14)
 
 
