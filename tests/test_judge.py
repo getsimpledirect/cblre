@@ -11,7 +11,7 @@ import json
 import pytest
 from harness.judge import (
     build_judge_prompt, _parse_judge_json, judge_item,
-    RUBRICS, SCALE_ANCHORS,
+    RUBRICS,
 )
 from harness.models import GenResult, ModelClient
 

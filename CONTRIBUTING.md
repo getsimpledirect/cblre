@@ -12,12 +12,12 @@ type determines what version component gets bumped.
 |------------|----------------------------------------------------|---------------|
 | `feat`     | New scorer, new track, new model client            | minor         |
 | `fix`      | Bug fix in harness logic, scorer, or judge         | patch         |
-| `docs`     | Documentation only                                 | patch         |
-| `chore`    | Tooling, CI, dependencies, release config          | patch         |
-| `refactor` | Code restructure with no behaviour change          | patch         |
-| `test`     | Adding or fixing tests                             | patch         |
-| `ci`       | GitHub Actions workflows only                      | patch         |
-| `perf`     | Performance improvement                            | patch         |
+| `docs`     | Documentation only                                 | none (bundled) |
+| `chore`    | Tooling, CI, dependencies, release config          | none (bundled) |
+| `refactor` | Code restructure with no behaviour change          | none (bundled) |
+| `test`     | Adding or fixing tests                             | none (bundled) |
+| `ci`       | GitHub Actions workflows only                      | none (bundled) |
+| `perf`     | Performance improvement                            | none (bundled) |
 
 ### Format
 

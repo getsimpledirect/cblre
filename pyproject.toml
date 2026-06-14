@@ -26,6 +26,7 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -46,10 +47,15 @@ vertex = ["anthropic[vertex]"]
 local = ["torch>=2.0", "transformers>=4.40", "peft"]
 
 [project.urls]
-Homepage = "https://github.com/getsimpledirect/cblre"
 Repository = "https://github.com/getsimpledirect/cblre"
 Issues = "https://github.com/getsimpledirect/cblre/issues"
 Changelog = "https://github.com/getsimpledirect/cblre/blob/main/CHANGELOG.md"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "single"
 
 [project.scripts]
 cblre-eval = "harness.run_eval:main"

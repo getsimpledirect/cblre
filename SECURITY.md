@@ -43,6 +43,8 @@ We commit to:
 - Keeping you informed of remediation progress
 - Crediting reporters in the release notes (unless you prefer to remain anonymous)
 
+If you have not received an acknowledgement within 3 business days or a resolution timeline within 10 business days, add a comment to your open private advisory to prompt a follow-up.
+
 ## Security design notes
 
 - API keys are never stored in the repository; they are read exclusively from environment variables at runtime

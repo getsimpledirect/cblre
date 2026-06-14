@@ -27,6 +27,11 @@ jobs:
       - name: Install (bare — no torch, no GPU)
         run: pip install -e .
 
+      - name: Lint (ruff)
+        run: |
+          pip install ruff
+          ruff check harness/ tests/
+
       - name: Import smoke test
         run: |
           python -c "from harness import scorers, judge, run_eval, models, stats"

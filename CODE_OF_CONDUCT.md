@@ -35,7 +35,7 @@ This Code of Conduct applies in all project spaces — GitHub issues, pull reque
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behaviour may be reported by opening a [private security advisory](https://github.com/getsimpledirect/cblre/security/advisories/new) (for confidentiality) or by contacting the maintainers directly. All complaints will be reviewed promptly and investigated fairly.
+Instances of abusive, harassing, or otherwise unacceptable behaviour may be reported by contacting the maintainers directly through GitHub — open a private [GitHub Discussion](https://github.com/getsimpledirect/cblre/discussions) marked as a sensitive topic, or use the "Report content" feature on the offending content. All complaints will be reviewed promptly and investigated fairly. Reports will be kept confidential.
 
 ## Attribution
 

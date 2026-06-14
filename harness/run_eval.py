@@ -170,7 +170,7 @@ def main():
 
 
 def aggregate(results_path, summary_path, run_id, model_spec, judge_specs):
-    rows = [json.loads(l) for l in open(results_path)]
+    rows = [json.loads(line) for line in open(results_path)]
     by_track = defaultdict(list)
     lang_acc = defaultdict(lambda: defaultdict(list))   # track -> lang -> scores
     diff_acc = defaultdict(lambda: defaultdict(list))   # track -> difficulty -> scores

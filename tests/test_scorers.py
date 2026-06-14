@@ -12,7 +12,6 @@ Covers all programmatic scorers:
 """
 from __future__ import annotations
 
-import pytest
 from harness.scorers import (
     extract_citations, citation_validity,
     mcq_exact, language_adherence, keyword_coverage, refusal, tool_call,

@@ -39,14 +39,16 @@ git clone https://github.com/getsimpledirect/cblre.git
 cd cblre
 ```
 
-The sample items live at `data/sample/`. Combine them into a single JSONL for the harness:
+The sample items live at `data/sample/sample.jsonl`. Copy it to a working path:
 
 ```bash
-# if items are individual .json files
-for f in data/sample/*.json; do cat "$f"; echo; done > /tmp/sample.jsonl
-
-# if already a .jsonl, use it directly
 cp data/sample/sample.jsonl /tmp/sample.jsonl
+```
+
+If you have written your own items as individual `.json` files, combine them into a JSONL first:
+
+```bash
+for f in your_items/*.json; do cat "$f"; echo; done > /tmp/sample.jsonl
 ```
 
 ---
