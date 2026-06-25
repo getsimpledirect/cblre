@@ -90,7 +90,7 @@ def score_one(item: dict, response: str, judge_clients: list) -> dict:
                 result["final_score"] = 0.0  # required-term gate failed
             elif method == "tool_call":
                 # name match (prog 0.5) + judged arg quality (other 0.5)
-                result["final_score"] = prog["score"] + 0.5 * jr["score01"]
+                result["final_score"] = min(1.0, prog["score"] + 0.5 * jr["score01"])
             else:
                 result["final_score"] = jr["score01"]
     elif prog.get("needs_judge") and not judge_clients:
