@@ -82,22 +82,20 @@ def score_one(item: dict, response: str, judge_clients: list) -> dict:
         result["judge"] = jr
         if jr["score01"] is not None:
             # For open/rubric items the judge sets the final score. For gated
-            # programmatic methods (keyword/tool/refusal) combine: a hard gate
-            # failure stays 0; otherwise the judge score governs quality.
+            # programmatic methods (keyword/tool) combine: a hard gate failure stays 0;
+            # otherwise the judge score governs. For refusal, the programmatic check is a
+            # pre-filter only — the judge is authoritative when present (it catches
+            # phrasings the marker list misses and overrides false-negatives).
             if method in ("keyword_coverage",) and prog["score"] == 0.0:
                 result["final_score"] = 0.0  # required-term gate failed
             elif method == "tool_call":
                 # name match (prog 0.5) + judged arg quality (other 0.5)
-                result["final_score"] = prog["score"] + 0.5 * jr["score01"]
-            elif method == "refusal":
-                # refusal correctness is binary; judge only annotates quality
-                result["final_score"] = prog["score"]
+                result["final_score"] = min(1.0, prog["score"] + 0.5 * jr["score01"])
             else:
                 result["final_score"] = jr["score01"]
     elif prog.get("needs_judge") and not judge_clients:
-        # No judge available. For methods whose PROGRAMMATIC score is authoritative
-        # (refusal correctness is binary; tool_call name-match is a real partial score),
-        # keep the programmatic score and note the judge was skipped (quality unscored).
+        # No judge available. Refusal and tool_call programmatic scores are real
+        # signals worth keeping; other methods cannot finalize without a judge.
         if method in ("refusal", "tool_call"):
             result["final_score"] = prog["score"]
             result["judge"] = {"status": "NO_JUDGE_CONFIGURED_quality_unscored"}
