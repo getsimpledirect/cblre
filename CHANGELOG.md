@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.5](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.4...cblre-v0.1.5) (2026-06-25)
+
+
+### Bug Fixes
+
+* **harness:** address all code-review findings from refusal scorer PR ([d229e1b](https://github.com/getsimpledirect/cblre/commit/d229e1b833b957f430f9ddc34eeae28ef310a143))
+* **harness:** refusal scorer adds "I will not" family; judge is authoritative ([877cb94](https://github.com/getsimpledirect/cblre/commit/877cb94ab3333a955a984936991c59aa7e27553b))
+
 ## [0.1.4](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.3...cblre-v0.1.4) (2026-06-14)
 
 
