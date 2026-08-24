@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.6...cblre-v0.1.7) (2026-08-24)
+
+
+### Bug Fixes
+
+* **harness:** read and write every item bank as UTF-8 ([7342f51](https://github.com/getsimpledirect/cblre/commit/7342f519bf74f31c9e45a1a4a75c2a18dce06448))
+
 ## [0.1.6](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.5...cblre-v0.1.6) (2026-08-24)
 
 
