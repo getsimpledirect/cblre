@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.5...cblre-v0.1.6) (2026-08-24)
+
+
+### Features
+
+* **harness:** add paired significance tests to stats ([3c3a5bf](https://github.com/getsimpledirect/cblre/commit/3c3a5bf5e62d257b13ac45917feeadd2bd943b6c))
+
 ## [0.1.5](https://github.com/getsimpledirect/cblre/compare/cblre-v0.1.4...cblre-v0.1.5) (2026-06-25)
 
 
