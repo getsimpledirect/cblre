@@ -8,13 +8,16 @@ judge_item is tested with a minimal mock ModelClient — no network calls.
 from __future__ import annotations
 
 import json
+
 import pytest
+
 from harness.judge import (
-    build_judge_prompt, _parse_judge_json, judge_item,
     RUBRICS,
+    _parse_judge_json,
+    build_judge_prompt,
+    judge_item,
 )
 from harness.models import GenResult, ModelClient
-
 
 # ── Mock ─────────────────────────────────────────────────────────────────────
 

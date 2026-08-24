@@ -9,10 +9,11 @@ HFLocalClient is skipped when torch is not installed (bare CI).
 """
 from __future__ import annotations
 
-import pytest
-from unittest.mock import patch, MagicMock
-from harness.models import ModelClient, OpenAICompatClient, GenResult, build_client
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from harness.models import GenResult, ModelClient, OpenAICompatClient, build_client
 
 # ── ModelClient static helpers ────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ class TestBuildSystemAndUser:
         assert user == "Q"
 
     def test_system_and_context_joined(self):
-        sys_str, user = ModelClient._build_system_and_user("Q", "Be precise.", "Doc A")
+        sys_str, _user = ModelClient._build_system_and_user("Q", "Be precise.", "Doc A")
         assert "Be precise." in sys_str
         assert "Doc A" in sys_str
 

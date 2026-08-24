@@ -13,8 +13,8 @@ judge in judge.py must produce the real score. Programmatic scorers never
 """
 
 from __future__ import annotations
-import re
 
+import re
 
 # ── Citation patterns (Canadian) ────────────────────────────────────────────
 # Neutral citation:        2001 SCC 79   |  2019 ONCA 123  |  2020 QCCA 45
@@ -52,8 +52,8 @@ def _alnum(s: str) -> str:
 
 
 # ── MCQ ──────────────────────────────────────────────────────────────────────
-_MCQ_STOP = set("the a an of to in for and or with except as is are be by which "
-                "all cases case law laws under except".split())
+_MCQ_STOP = {"the", "a", "an", "of", "to", "in", "for", "and", "or", "with", "except", "as",
+             "is", "are", "be", "by", "which", "all", "cases", "case", "law", "laws", "under"}
 
 
 def _mcq_content_match(response: str, choices: list):
@@ -262,8 +262,8 @@ def _extract_tool_call(text: str):
         try:
             o = json.loads(m.group(1))
             return o.get("name"), o.get("arguments", {}), "json_tag"
-        except Exception:
-            pass
+        except (json.JSONDecodeError, AttributeError):
+            pass  # Strategy 1 of 4 did not apply; fall through to the next parser.
     # 2) XML-style  <function=NAME><parameter=key>value</parameter></function>
     fm = re.search(r"<function=([\w.\-]+)>(.*?)</function>", text, re.DOTALL)
     if fm:
@@ -282,8 +282,8 @@ def _extract_tool_call(text: str):
             if isinstance(args, str):
                 args = json.loads(args)
             return fn.get("name"), args or {}, "openai_structured"
-    except Exception:
-        pass
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        pass  # Strategy 3 of 4 did not apply; fall through to the next parser.
     # 4) python-style  name("...")
     pm = re.search(r"\b([a-zA-Z_]\w*)\s*\(\s*([\"'])(.*?)\2\s*\)", text)
     if pm:

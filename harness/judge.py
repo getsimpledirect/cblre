@@ -17,10 +17,9 @@ and record which model + version was the judge.
 """
 
 from __future__ import annotations
+
 import json
 import re
-from typing import Optional
-
 
 # Anchored 0-4 scale reused by most rubrics; rescaled to 0-1 at aggregation.
 SCALE_ANCHORS = """Score on a 0-4 scale:
@@ -146,7 +145,7 @@ def build_judge_prompt(item: dict, answer: str) -> str:
     )
 
 
-def _parse_judge_json(text: str) -> Optional[dict]:
+def _parse_judge_json(text: str) -> dict | None:
     m = re.search(r"\{.*\}", text, re.DOTALL)
     if not m:
         return None
@@ -157,7 +156,8 @@ def _parse_judge_json(text: str) -> Optional[dict]:
             return {"score": score,
                     "rationale": o.get("rationale", ""),
                     "fabricated_citation": bool(o.get("fabricated_citation", False))}
-    except Exception:
+    except (ValueError, TypeError, AttributeError):
+        # Malformed JSON, a non-dict payload, or a non-numeric "score".
         return None
     return None
 

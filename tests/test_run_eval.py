@@ -9,10 +9,11 @@ aggregate reads/writes real JSON files from tmp_path.
 from __future__ import annotations
 
 import json
-import pytest
-from harness.run_eval import load_items, load_done, score_one, aggregate
-from harness.models import GenResult, ModelClient
 
+import pytest
+
+from harness.models import GenResult, ModelClient
+from harness.run_eval import aggregate, load_done, load_items, score_one
 
 # ── Mock ─────────────────────────────────────────────────────────────────────
 
@@ -356,3 +357,57 @@ class TestAggregate:
             s = json.load(f)
         assert "common_law" in s["tracks"]
         assert "privacy_compliance" in s["tracks"]
+
+
+# ── Encoding ───────────────────────────────────────────────────────
+
+class TestFileEncoding:
+    """Item banks are UTF-8 on disk and roughly half of CBLRE is French.
+
+    Python's open() defaults to the locale encoding, which is cp1252 on
+    Windows. Reading UTF-8 as cp1252 does not raise — it silently mojibakes
+    every accented character ("préjudice" -> "prÃ©judice"), so the model is
+    scored on corrupted French and bilingual_parity reports a depressed ratio
+    with no error anywhere. CI runs on Linux, where the default is already
+    UTF-8, so the failure is invisible there. These tests hold the invariant
+    on every platform.
+    """
+
+    def test_french_items_survive_a_round_trip(self, tmp_path):
+        item = {"id": "fr-1", "track": "quebec_civil_law",
+                "prompt": "Expliquez la responsabilité civile extracontractuelle "
+                          "en droit québécois, avec renvoi à l'article 1457 C.c.Q.",
+                "scoring": {"method": "rubric", "rubric_id": "qc-civil-liability-v1"}}
+        p = tmp_path / "fr.jsonl"
+        p.write_text(json.dumps(item, ensure_ascii=False) + "\n", encoding="utf-8")
+
+        loaded = load_items(str(p))
+
+        assert loaded == [item]
+        assert loaded[0]["prompt"].count("é") == item["prompt"].count("é")
+        assert "Ã" not in loaded[0]["prompt"]   # the mojibake signature
+
+    def test_every_open_call_in_the_harness_declares_an_encoding(self):
+        """Guards the round-trip above at its source.
+
+        The round-trip test only fails on a machine whose locale is not UTF-8.
+        This one fails everywhere, so a reintroduced bare open() is caught in
+        CI rather than on a contributor's laptop.
+        """
+        import ast
+        import pathlib
+
+        offenders = []
+        for path in sorted(pathlib.Path("harness").rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if (isinstance(node, ast.Call)
+                        and isinstance(node.func, ast.Name)
+                        and node.func.id == "open"
+                        and not any(k.arg == "encoding" for k in node.keywords)):
+                    offenders.append(f"{path.as_posix()}:{node.lineno}")
+
+        assert offenders == [], (
+            "open() without an explicit encoding, which reads UTF-8 item banks as "
+            f"cp1252 on Windows: {', '.join(offenders)}. Pass encoding=\"utf-8\"."
+        )
