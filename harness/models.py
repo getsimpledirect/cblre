@@ -23,11 +23,12 @@ raw text so the track-9 scorer can parse whatever format the model emitted.
 """
 
 from __future__ import annotations
+
 import json
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -43,8 +44,8 @@ class ModelClient:
 
     model_id: str = "unknown"
 
-    def generate(self, prompt: str, system: Optional[str] = None,
-                 context: Optional[Any] = None, tools: Optional[list] = None,
+    def generate(self, prompt: str, system: str | None = None,
+                 context: Any | None = None, tools: list | None = None,
                  max_tokens: int = 512, temperature: float = 0.0) -> GenResult:
         raise NotImplementedError
 
@@ -93,18 +94,17 @@ class HFLocalClient(ModelClient):
     """
 
     def __init__(self, model_path: str, device: str = "cuda:0",
-                 thinking_kw: Optional[str] = "enable_thinking",
-                 adapter: Optional[str] = None):
+                 thinking_kw: str | None = "enable_thinking",
+                 adapter: str | None = None):
         import torch
         self.torch = torch
         self.model_id = os.path.basename(model_path.rstrip("/"))
         self.thinking_kw = thinking_kw
 
-        from transformers import (AutoModelForImageTextToText,
-                                   AutoModelForCausalLM, AutoTokenizer)
-        common = dict(dtype=torch.bfloat16, device_map=device,
-                      trust_remote_code=True, low_cpu_mem_usage=True,
-                      attn_implementation="sdpa")
+        from transformers import AutoModelForCausalLM, AutoModelForImageTextToText, AutoTokenizer
+        common = {"dtype": torch.bfloat16, "device_map": device,
+                      "trust_remote_code": True, "low_cpu_mem_usage": True,
+                      "attn_implementation": "sdpa"}
         # Prefer the image-text class so vision-bearing checkpoints keep their
         # vision tower. Text-only checkpoints carry a text-only config that this
         # class rejects — fall back to the causal-LM class so the harness
@@ -136,7 +136,7 @@ class HFLocalClient(ModelClient):
     def generate(self, prompt, system=None, context=None, tools=None,
                  max_tokens=512, temperature=0.0) -> GenResult:
         messages = self._build_messages(prompt, system, context)
-        tmpl_kwargs = dict(add_generation_prompt=True, return_tensors="pt", return_dict=True)
+        tmpl_kwargs = {"add_generation_prompt": True, "return_tensors": "pt", "return_dict": True}
         if self.thinking_kw:
             tmpl_kwargs[self.thinking_kw] = False
         if tools:
@@ -150,8 +150,8 @@ class HFLocalClient(ModelClient):
             enc = self.tok.apply_chat_template(messages, **tmpl_kwargs)
         enc = {k: v.to(self.device) for k, v in enc.items()}
         ilen = enc["input_ids"].shape[1]
-        gen_kwargs = dict(max_new_tokens=max_tokens, do_sample=temperature > 0,
-                          pad_token_id=self.tok.eos_token_id)
+        gen_kwargs = {"max_new_tokens": max_tokens, "do_sample": temperature > 0,
+                          "pad_token_id": self.tok.eos_token_id}
         if temperature > 0:
             gen_kwargs["temperature"] = temperature
         with self.torch.inference_mode():
@@ -191,8 +191,8 @@ class OpenAICompatClient(ModelClient):
     """
 
     def __init__(self, model_name: str, base_url: str,
-                 api_key: Optional[str] = None, send_tools: bool = True,
-                 chat_template_kwargs: Optional[dict] = None):
+                 api_key: str | None = None, send_tools: bool = True,
+                 chat_template_kwargs: dict | None = None):
         self.model_id = model_name
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
@@ -202,6 +202,7 @@ class OpenAICompatClient(ModelClient):
     def generate(self, prompt, system=None, context=None, tools=None,
                  max_tokens=512, temperature=0.0) -> GenResult:
         import sys
+
         import requests
         headers = {"Content-Type": "application/json"}
         if self.api_key:
@@ -264,7 +265,7 @@ class AnthropicClient(ModelClient):
     """Native Anthropic API (api.anthropic.com). Works with any model available
     via api.anthropic.com. Auth via ANTHROPIC_API_KEY or explicit api_key."""
 
-    def __init__(self, model_name: str, api_key: Optional[str] = None):
+    def __init__(self, model_name: str, api_key: str | None = None):
         import anthropic
         self.model_id = model_name
         self.client = anthropic.Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
@@ -272,12 +273,12 @@ class AnthropicClient(ModelClient):
     def generate(self, prompt, system=None, context=None, tools=None,
                  max_tokens=512, temperature=0.0) -> GenResult:
         sys_str, user_str = self._build_system_and_user(prompt, system, context)
-        kwargs = dict(
-            model=self.model_id,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            messages=[{"role": "user", "content": user_str}],
-        )
+        kwargs = {
+            "model": self.model_id,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [{"role": "user", "content": user_str}],
+        }
         if sys_str:
             kwargs["system"] = sys_str
         if tools:
@@ -330,12 +331,12 @@ class VertexAnthropicClient(ModelClient):
         if context:
             ctx = "\n\n".join(str(c) for c in context) if isinstance(context, list) else str(context)
             sys_parts.append(f"Context:\n{ctx}")
-        kwargs = dict(
-            model=self.model_id,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        kwargs = {
+            "model": self.model_id,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [{"role": "user", "content": prompt}],
+        }
         if sys_parts:
             kwargs["system"] = "\n\n".join(sys_parts)
         if tools:

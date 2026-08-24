@@ -16,6 +16,7 @@ shared; keep bootstrap_diff_test for genuinely independent samples.
 """
 
 from __future__ import annotations
+
 import random
 from math import comb
 from statistics import mean

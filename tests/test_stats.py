@@ -8,6 +8,7 @@ bootstrap_diff_test, parity_ratio, paired_bootstrap_diff, mcnemar_test.
 from __future__ import annotations
 
 import pytest
+
 from harness.stats import (
     bootstrap_ci,
     bootstrap_diff_test,

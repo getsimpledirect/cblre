@@ -13,10 +13,14 @@ Covers all programmatic scorers:
 from __future__ import annotations
 
 from harness.scorers import (
-    extract_citations, citation_validity,
-    mcq_exact, language_adherence, keyword_coverage, refusal, tool_call,
+    citation_validity,
+    extract_citations,
+    keyword_coverage,
+    language_adherence,
+    mcq_exact,
+    refusal,
+    tool_call,
 )
-
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
