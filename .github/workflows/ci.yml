@@ -29,7 +29,13 @@ jobs:
 
       - name: Lint (ruff)
         run: |
-          pip install ruff
+          # Pinned deliberately. [tool.ruff] in pyproject sets no `select`, so the
+          # active rule set is whatever the installed version defaults to — an
+          # unpinned install turns every ruff release into a surprise CI failure on
+          # untouched code. 0.16.4 flags 36 pre-existing violations (I001, UP045,
+          # C408, BLE001, S110); clearing those is its own change. Bump this pin in
+          # the same PR that clears them.
+          pip install ruff==0.15.17
           ruff check harness/ tests/
 
       - name: Import smoke test

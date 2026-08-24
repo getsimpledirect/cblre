@@ -122,7 +122,19 @@ All reported numbers include:
 - 95% bootstrap CI (10,000 resamples, percentile method, seed=0)
 - Difficulty breakdown: `core` / `applied` / `expert`
 
-For any "A is better than B" claim: two-sample bootstrap significance test (`stats.bootstrap_diff_test`). Differences inside overlapping CIs are reported as `"not_distinguishable"` — never as a directional ranking.
+For any "A is better than B" claim: a significance test, chosen by whether the two arms were scored over the same items.
+
+| Comparison | Test | Function |
+|---|---|---|
+| Different task sets, or independent samples | Two-sample bootstrap | `stats.bootstrap_diff_test` |
+| Same items, graded scores | Paired bootstrap of the per-item delta | `stats.paired_bootstrap_diff` |
+| Same items, pass/fail judgements | Exact McNemar on discordant pairs | `stats.mcnemar_test` |
+
+Picking the unpaired test for a paired comparison is a methodological error, not a conservative choice. It discards the item-level correlation and widens the interval until a real effect vanishes into it: on a shared 30-item set where one arm wins on every item by four points, the paired test returns `A_better` and the unpaired test returns `not_distinguishable`. Two arms evaluated on the same item bank — the ordinary case in this harness — are paired, and the paired functions raise on a length mismatch rather than silently answering an unpaired question.
+
+A pre/post difference-in-differences gate is a paired comparison of paired quantities: pass the per-item pre→post deltas of each arm to `paired_bootstrap_diff`, and the returned difference is Δ = (post_true − pre_true) − (post_control − pre_control).
+
+Differences inside overlapping CIs are reported as `"not_distinguishable"` — never as a directional ranking.
 
 ---
 
