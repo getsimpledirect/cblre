@@ -29,21 +29,22 @@ Notes:
 """
 
 from __future__ import annotations
+
 import argparse
 import json
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
 
+from . import judge as J
 from . import models as M
 from . import scorers as S
-from . import judge as J
 from . import stats as ST
 
 
 def load_items(path: str) -> list[dict]:
     items = []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -53,13 +54,20 @@ def load_items(path: str) -> list[dict]:
 
 def load_done(results_path: str) -> set:
     done = set()
+    skipped = 0
     if os.path.exists(results_path):
-        with open(results_path) as f:
+        with open(results_path, encoding="utf-8") as f:
             for line in f:
                 try:
                     done.add(json.loads(line)["id"])
-                except Exception:
-                    pass
+                except (json.JSONDecodeError, KeyError):
+                    # A run interrupted mid-write leaves a truncated final line.
+                    # Skipping it is correct: the id stays out of `done`, so the
+                    # item is simply re-scored on this pass.
+                    skipped += 1
+    if skipped:
+        print(f"[run] resume: skipped {skipped} unreadable line(s) in "
+              f"{results_path}; those items will be re-scored.")
     return done
 
 
@@ -131,7 +139,7 @@ def main():
     if not judge_clients:
         print("[run] WARNING: no judge configured — rubric items will be unscored")
 
-    with open(results_path, "a") as out:
+    with open(results_path, "a", encoding="utf-8") as out:
         for it in items:
             if it["id"] in done:
                 continue
@@ -168,7 +176,8 @@ def main():
 
 
 def aggregate(results_path, summary_path, run_id, model_spec, judge_specs):
-    rows = [json.loads(line) for line in open(results_path)]
+    with open(results_path, encoding="utf-8") as f:
+        rows = [json.loads(line) for line in f]
     by_track = defaultdict(list)
     lang_acc = defaultdict(lambda: defaultdict(list))   # track -> lang -> scores
     diff_acc = defaultdict(lambda: defaultdict(list))   # track -> difficulty -> scores
@@ -215,7 +224,7 @@ def aggregate(results_path, summary_path, run_id, model_spec, judge_specs):
         "bilingual_parity": parity,
         "note": "Seed run. Items require SME validation before these numbers are publishable (see docs/methodology.md §0).",
     }
-    with open(summary_path, "w") as f:
+    with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
 
