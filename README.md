@@ -10,6 +10,18 @@ CBLRE is a benchmark for evaluating large language models on Canadian legal and 
 
 ---
 
+## Repository boundaries
+
+| Path | Role |
+|---|---|
+| [harness/](harness/) | Inference clients and scoring implementation |
+| [schema/](schema/) | Public item-format schema |
+| [tests/](tests/) | Development checks |
+| [docs/](docs/) | Methodology, access protocol and setup |
+| [DATA_LICENSE.md](DATA_LICENSE.md) | Separate evaluation-data terms |
+
+The open-source code grant does not authorize access to, training on, or redistribution of the gated evaluation bank. Do not place real held-out items, answers, provider credentials or private evaluation outputs in public issues or examples.
+
 ## Why public harness, gated items?
 
 The item bank, gold answers, and held-out scoring split are not published here. Evaluators can inspect the full scoring logic, run the harness against their own items, and understand the methodology — while the private split prevents models from being trained on test content before evaluation. This is the standard contamination-resistance design used by credible benchmarks.
